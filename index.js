@@ -41,7 +41,7 @@ app.get("/api/search", async (req, res) => {
 });
 
 // Basic health endpoint
-app.get("/api/ping", (req, res) => res.json({ ok: true }));
+app.get("/", (req, res) => res.json({ ok: true }));
 
 const httpServer = http.createServer(app);
 
