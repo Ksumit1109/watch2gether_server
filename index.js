@@ -513,5 +513,5 @@ setInterval(() => {
 httpServer.listen(PORT, () => {
     console.log(`\n🚀 Server listening on http://localhost:${PORT}`);
     console.log(`✓ Socket.IO ready`);
-    console.log(`✓ CORS enabled for all origins\n`);
+    console.log(`✓ CORS enabled for all origins`);
 });
