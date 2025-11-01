@@ -249,6 +249,12 @@ io.on("connection", (socket) => {
                 socket.emit("join_success", response);
             }
 
+            // **FIX: Automatically send current video state to the new user**
+            if (room.state && room.state.videoId) {
+                console.log(`  Sending current video state to new user: ${room.state.videoId}`);
+                socket.emit("sync_state", room.state);
+            }
+
             // Then notify everyone in room about member update
             io.to(roomId).emit("member_update", {
                 members: room.members.size,
