@@ -97,7 +97,7 @@ export async function getChatHistory(roomId, limit = 50) {
 export async function cleanupOldRooms(hoursOld = 24) {
     await sql`
     DELETE FROM rooms
-    WHERE created_at < NOW() - INTERVAL '${hoursOld} hours'
+    WHERE created_at < NOW() - (${hoursOld} * INTERVAL '1 hour')
   `;
 }
 
@@ -207,7 +207,7 @@ export async function getCachedSearchResults(query, maxResults, cacheMinutes = 6
     JOIN video_searches vs ON sq.id = vs.search_query_id
     WHERE sq.query = ${query}
       AND sq.max_results >= ${maxResults}
-      AND sq.created_at > NOW() - INTERVAL '${cacheMinutes} minutes'
+      AND sq.created_at > NOW() - (${cacheMinutes} * INTERVAL '1 minute')
     GROUP BY sq.id, sq.created_at
     ORDER BY sq.created_at DESC
     LIMIT 1
@@ -234,7 +234,7 @@ export async function getMostPlayedVideos(limit = 10, days = 7) {
       COUNT(*) as play_count,
       MAX(started_at) as last_played
     FROM video_plays
-    WHERE started_at > NOW() - INTERVAL '${days} days'
+    WHERE started_at > NOW() - (${days} * INTERVAL '1 day')
     GROUP BY video_id, video_title
     ORDER BY play_count DESC, last_played DESC
     LIMIT ${limit}
