@@ -1,13 +1,13 @@
-// server/index.js
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 import cors from "cors";
-
 import youtubeRoutes from "./routes/youtubeRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
 import { handleRoomEvents } from "./socket/roomHandlers.js";
+import { testConnection } from "./db/config.js";
+import { initDatabase } from "./db/init.js";
 
 dotenv.config();
 
@@ -32,10 +32,26 @@ const io = new Server(server, {
     allowEIO3: true
 });
 
-// Attach all your socket logic in one line
+// Attach socket logic
 io.on("connection", (socket) => handleRoomEvents(io, socket));
 
-server.listen(PORT, () => {
-    console.log(`\nServer running on http://localhost:${PORT}`);
-    console.log(`Socket.IO ready • CORS enabled`);
-});
+// Start server with database initialization
+async function startServer() {
+    try {
+        // Test database connection
+        await testConnection();
+
+        // Initialize database schema
+        await initDatabase();
+
+        server.listen(PORT, () => {
+            console.log(`\nServer running on http://localhost:${PORT}`);
+            console.log(`Socket.IO ready • CORS enabled • Database connected`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+}
+
+startServer();
