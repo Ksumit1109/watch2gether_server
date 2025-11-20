@@ -141,6 +141,42 @@ export function handleRoomEvents(io, socket) {
         });
     });
 
+    socket.on("change_video", async ({ videoId, videoTitle }) => {
+        const roomId = socket.data.roomId;
+        if (!roomId || !rooms[roomId]) return;
+
+        const room = rooms[roomId];
+
+        // Only host can change video
+        if (room.host !== socket.id) return;
+
+        const newState = {
+            videoId,
+            videoTitle: videoTitle || 'Unknown',
+            playing: false,
+            currentTime: 0,
+            timestamp: Date.now()
+        };
+
+        room.state = newState;
+
+        // Save to database
+        await db.updateRoomState(roomId, videoId, newState);
+
+        // Track video play
+        await db.trackVideoPlay(
+            roomId,
+            videoId,
+            videoTitle || 'Unknown',
+            socket.data.username
+        );
+
+        // Broadcast to all in room
+        io.to(roomId).emit("sync_state", newState);
+
+        console.log(`✓ Video changed in room ${roomId}: ${videoId}`);
+    });
+
     socket.on("disconnect", async () => {
         const roomId = socket.data.roomId;
         if (!roomId || !rooms[roomId]) return;
