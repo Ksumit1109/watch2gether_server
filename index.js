@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import youtubeRoutes from "./routes/youtubeRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import { handleRoomEvents } from "./socket/roomHandlers.js";
 import { testConnection } from "./db/config.js";
 import { initDatabase } from "./db/init.js";
@@ -21,6 +22,7 @@ app.get("/", (_, res) => res.json({ ok: true }));
 // Routes
 app.use("/api/search", youtubeRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/users", userRoutes);
 
 // HTTP + Socket.IO server
 const server = http.createServer(app);

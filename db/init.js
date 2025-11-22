@@ -1,9 +1,21 @@
 import { sql } from './config.js';
 
 export async function initDatabase() {
-    try {
-        // Create rooms table
-        await sql`
+  try {
+    // Create users table
+    await sql`
+            CREATE TABLE IF NOT EXISTS users (
+                id VARCHAR(255) PRIMARY KEY, -- Supabase User ID
+                email VARCHAR(255) UNIQUE NOT NULL,
+                username VARCHAR(255),
+                avatar_url TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `;
+
+    // Create rooms table
+    await sql`
       CREATE TABLE IF NOT EXISTS rooms (
         id VARCHAR(6) PRIMARY KEY,
         host_socket_id VARCHAR(255) NOT NULL,
@@ -14,8 +26,8 @@ export async function initDatabase() {
       )
     `;
 
-        // Create room_members table
-        await sql`
+    // Create room_members table
+    await sql`
       CREATE TABLE IF NOT EXISTS room_members (
         id SERIAL PRIMARY KEY,
         room_id VARCHAR(6) REFERENCES rooms(id) ON DELETE CASCADE,
@@ -26,8 +38,8 @@ export async function initDatabase() {
       )
     `;
 
-        // Create chat_messages table
-        await sql`
+    // Create chat_messages table
+    await sql`
       CREATE TABLE IF NOT EXISTS chat_messages (
         id SERIAL PRIMARY KEY,
         room_id VARCHAR(6) REFERENCES rooms(id) ON DELETE CASCADE,
@@ -37,8 +49,8 @@ export async function initDatabase() {
       )
     `;
 
-        // NEW: Create search_queries table
-        await sql`
+    // NEW: Create search_queries table
+    await sql`
       CREATE TABLE IF NOT EXISTS search_queries (
         id SERIAL PRIMARY KEY,
         query TEXT NOT NULL,
@@ -50,8 +62,8 @@ export async function initDatabase() {
       )
     `;
 
-        // NEW: Create video_searches table (stores actual video results)
-        await sql`
+    // NEW: Create video_searches table (stores actual video results)
+    await sql`
       CREATE TABLE IF NOT EXISTS video_searches (
         id SERIAL PRIMARY KEY,
         search_query_id INTEGER REFERENCES search_queries(id) ON DELETE CASCADE,
@@ -65,8 +77,8 @@ export async function initDatabase() {
       )
     `;
 
-        // NEW: Create video_plays table (track what videos are played in rooms)
-        await sql`
+    // NEW: Create video_plays table (track what videos are played in rooms)
+    await sql`
       CREATE TABLE IF NOT EXISTS video_plays (
         id SERIAL PRIMARY KEY,
         room_id VARCHAR(6) REFERENCES rooms(id) ON DELETE SET NULL,
@@ -77,22 +89,22 @@ export async function initDatabase() {
       )
     `;
 
-        // Create indexes
-        await sql`CREATE INDEX IF NOT EXISTS idx_room_members_room_id ON room_members(room_id)`;
-        await sql`CREATE INDEX IF NOT EXISTS idx_chat_messages_room_id ON chat_messages(room_id)`;
-        await sql`CREATE INDEX IF NOT EXISTS idx_rooms_created_at ON rooms(created_at)`;
+    // Create indexes
+    await sql`CREATE INDEX IF NOT EXISTS idx_room_members_room_id ON room_members(room_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_chat_messages_room_id ON chat_messages(room_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_rooms_created_at ON rooms(created_at)`;
 
-        // NEW: Indexes for search tables
-        await sql`CREATE INDEX IF NOT EXISTS idx_search_queries_query ON search_queries(query)`;
-        await sql`CREATE INDEX IF NOT EXISTS idx_search_queries_created_at ON search_queries(created_at)`;
-        await sql`CREATE INDEX IF NOT EXISTS idx_video_searches_video_id ON video_searches(video_id)`;
-        await sql`CREATE INDEX IF NOT EXISTS idx_video_searches_search_query_id ON video_searches(search_query_id)`;
-        await sql`CREATE INDEX IF NOT EXISTS idx_video_plays_room_id ON video_plays(room_id)`;
-        await sql`CREATE INDEX IF NOT EXISTS idx_video_plays_video_id ON video_plays(video_id)`;
+    // NEW: Indexes for search tables
+    await sql`CREATE INDEX IF NOT EXISTS idx_search_queries_query ON search_queries(query)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_search_queries_created_at ON search_queries(created_at)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_video_searches_video_id ON video_searches(video_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_video_searches_search_query_id ON video_searches(search_query_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_video_plays_room_id ON video_plays(room_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_video_plays_video_id ON video_plays(video_id)`;
 
-        console.log('✓ Database schema initialized');
-    } catch (error) {
-        console.error('✗ Database initialization failed:', error);
-        throw error;
-    }
+    console.log('✓ Database schema initialized');
+  } catch (error) {
+    console.error('✗ Database initialization failed:', error);
+    throw error;
+  }
 }

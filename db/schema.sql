@@ -8,6 +8,17 @@ CREATE TABLE IF NOT EXISTS rooms (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+    id VARCHAR(255) PRIMARY KEY, -- Supabase User ID
+    email VARCHAR(255) UNIQUE NOT NULL,
+    username VARCHAR(255),
+    avatar_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Room members table
 CREATE TABLE IF NOT EXISTS room_members (
     id SERIAL PRIMARY KEY,
